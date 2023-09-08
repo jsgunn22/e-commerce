@@ -15,14 +15,21 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  try {
-    const catById = await Category.findByPk(req.params.id, {
-      include: [{ model: Product }],
-    });
-    res.status(200).json(catById);
-  } catch (err) {
-    res.status(500).json(err);
+  const thisCategory = await Category.findByPk(req.params.id);
+
+  if (thisCategory) {
+    try {
+      const catById = await Category.findByPk(req.params.id, {
+        include: [{ model: Product }],
+      });
+      res.status(200).json(catById);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res.status(404).json(`Category with ID# ${req.params.id} does not exist.`);
   }
+
   // find one category by its `id` value
   // be sure to include its associated Products
 });

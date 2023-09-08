@@ -19,8 +19,24 @@ router.get("/", async (req, res) => {
 });
 
 // get one product
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   // find a single product by its `id`
+  const thisProduct = await Product.findByPk(req.params.id, {
+    include: [{ model: Category }, { model: Tag }],
+  });
+
+  if (thisProduct) {
+    try {
+      res.status(200).json(thisProduct);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res
+      .status(404)
+      .json(`Product with ID# ${req.params.id} does not exist in the database`);
+  }
+
   // be sure to include its associated Category and Tag data
 });
 
@@ -40,7 +56,7 @@ router.post("/", (req, res) => {
       if (req.body.tagIds.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
           return {
-            product_id: product.id,
+            product_id: product.product_id,
             tag_id,
           };
         });
@@ -61,7 +77,7 @@ router.put("/:id", (req, res) => {
   // update product data
   Product.update(req.body, {
     where: {
-      id: req.params.id,
+      product_id: req.params.id,
     },
   })
     .then((product) => {
@@ -100,8 +116,28 @@ router.put("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   // delete one product by its `id` value
+  const thisProduct = await Product.findByPk(req.params.id);
+
+  if (thisProduct) {
+    try {
+      Product.destroy({
+        where: {
+          product_id: thisProduct.product_id,
+        },
+      });
+      res
+        .status(200)
+        .json(
+          `Product with ID# ${req.params.id} has been deleted from the database.`
+        );
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res.status(404).json(`No Product exists with ID# ${req.params.id}`);
+  }
 });
 
 module.exports = router;
