@@ -39,42 +39,64 @@ router.post("/", (req, res) => {
   }
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   // update a category by its `id` value
-  try {
-    Category.update(
-      {
-        category_name: req.body.category_name,
-      },
-      {
-        where: {
-          category_id: req.body.category_id,
+
+  const thisCategory = await Category.findByPk(req.params.id);
+
+  if (thisCategory) {
+    try {
+      Category.update(
+        {
+          category_name: req.body.category_name,
         },
-      }
-    );
+        {
+          where: {
+            category_id: thisCategory.category_id,
+          },
+        }
+      );
+      res
+        .status(200)
+        .json(
+          `${thisCategory.category_name} Category name has been changed to ${req.body.category_name}`
+        );
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
     res
-      .status(200)
-      .json(`Category with ID# ${req.body.category_id} has been updated `);
-  } catch (err) {
-    res.status(500).json(err);
+      .status(400)
+      .json(
+        `Category with ID# ${req.params.id} does not exist in the database.`
+      );
   }
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
+  const thisCategory = await Category.findByPk(req.params.id);
   // delete a category by its `id` value
-  try {
-    Category.destroy({
-      where: {
-        category_id: req.body.category_id,
-      },
-    });
+  if (thisCategory) {
+    try {
+      Category.destroy({
+        where: {
+          category_id: thisCategory.category_id,
+        },
+      });
+      res
+        .status(200)
+        .json(
+          `${thisCategory.category_name} Category has been deleted from the database.`
+        );
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
     res
-      .status(200)
+      .status(400)
       .json(
-        `Category with ID# ${req.body.category_id} has been deleted from the database.`
+        `Category with ID# ${req.params.id} does not exist in the database.`
       );
-  } catch (err) {
-    res.status(500).json(err);
   }
 });
 
