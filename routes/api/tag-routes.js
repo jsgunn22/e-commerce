@@ -29,7 +29,7 @@ router.get("/:id", async (req, res) => {
   } else {
     res
       .status(404)
-      .json(`Tag with ID#${req.params.id} does not exist in the database.`);
+      .json(`Tag with ID# ${req.params.id} does not exist in the database.`);
   }
   // find a single tag by its `id`
   // be sure to include its associated Product data
@@ -52,13 +52,14 @@ router.put("/:id", async (req, res) => {
   if (thisTag) {
     try {
       Tag.update(req.body, { where: { tag_id: thisTag.tag_id } });
+      res.status(200).json(req.body);
     } catch (err) {
-      res.status(err).json(err);
+      res.status(500).json(err);
     }
   } else {
     res
       .status(404)
-      .json(`Tag with ID#${req.params.id} does not exist in the database.`);
+      .json(`Tag with ID# ${req.params.id} does not exist in the database.`);
   }
 });
 
@@ -69,13 +70,16 @@ router.delete("/:id", async (req, res) => {
   if (thisTag) {
     try {
       Tag.destroy({ where: { tag_id: thisTag.tag_id } });
+      res
+        .status(200)
+        .json(`Tag with ID# ${req.params.id} was deleted from the database.`);
     } catch (err) {
       res.status(500).json(err);
     }
   } else {
     res
       .status(404)
-      .json(`Tag with ID#${req.params.id} does not exist in the database.`);
+      .json(`Tag with ID# ${req.params.id} does not exist in the database.`);
   }
 });
 
