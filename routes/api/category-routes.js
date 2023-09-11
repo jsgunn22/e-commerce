@@ -4,6 +4,7 @@ const { Category, Product } = require("../../models");
 // The `/api/categories` endpoint
 
 router.get("/", async (req, res) => {
+  // gets all Categories
   try {
     const allCategories = await Category.findAll({
       include: [{ model: Product }],
@@ -15,6 +16,7 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
+  // will throw a 404 error if the id does not exist
   const thisCategory = await Category.findByPk(req.params.id);
 
   if (thisCategory) {
@@ -83,6 +85,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const thisCategory = await Category.findByPk(req.params.id);
   // delete a category by its `id` value
+  // if id does not exist will throw 404 error
   if (thisCategory) {
     try {
       Category.destroy({
